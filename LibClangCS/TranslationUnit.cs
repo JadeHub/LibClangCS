@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace LibClang
@@ -20,6 +21,8 @@ namespace LibClang
         private DiagnosticSet _diagSet;
 
         private ITranslationUnitItemStore _itemStore;
+
+        private HashSet<string> _headerFiles;
                 
         #endregion        
 
@@ -30,6 +33,7 @@ namespace LibClang
             _index = idx;
             _filename = filename;
             _itemStore = itemStore;
+            _headerFiles = new HashSet<string>();
         }
 
         public TranslationUnit(Index idx, string filename)
@@ -63,11 +67,16 @@ namespace LibClang
 
         #region Public Methods
 
-        public bool Parse(string[] cmdLineParams)
+        private void ResetState()
         {
             _itemStore.Clear();
+            _headerFiles.Clear();
             DisposeDiagnosticSet();
-                        
+        }
+
+        public bool Parse(string[] cmdLineParams)
+        {
+            ResetState();   
             if (!System.IO.File.Exists(Filename))
             {
                 throw new System.IO.FileNotFoundException("Couldn't find input file.", Filename);
@@ -80,7 +89,9 @@ namespace LibClang
                                                     cmdLineParams, cmdLineParams != null ? cmdLineParams.Length : 0, 
                                                     null, 0, (int)TranslationUnitFlags.PrecompiledPreamble);
             if (!Valid)
-                _itemStore.Clear();
+            {
+                ResetState();
+            }
             return Valid;
         }
 
@@ -161,6 +172,30 @@ namespace LibClang
         #region Properties
 
         internal ITranslationUnitItemFactory ItemFactory { get { return _itemStore; } }
+
+        private unsafe void LoadHeaderFiles()
+        {
+            _headerFiles = new HashSet<string>();
+
+            Library.CXInclusionVisitor callBack =
+                delegate(IntPtr fileHandle, Library.SourceLocation* inclusionStack, uint includeStackSize, IntPtr clientData)
+                {
+                    if(includeStackSize > 0)
+                        _headerFiles.Add(Library.clang_getFileName(fileHandle).ManagedString);
+                };
+
+            Library.clang_getInclusions(Handle, callBack, IntPtr.Zero);
+        }
+
+        public IEnumerable<string> HeaderFiles
+        {
+            get
+            {
+                if (_headerFiles == null)
+                    LoadHeaderFiles();
+                return _headerFiles;
+            }
+        }
 
         public string Filename
         {

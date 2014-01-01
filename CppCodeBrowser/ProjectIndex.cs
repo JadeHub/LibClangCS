@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LibClang;
 
 namespace CppCodeBrowser
 {
@@ -14,6 +15,7 @@ namespace CppCodeBrowser
         /// <param name="path"></param>
         /// <returns></returns>
         IFileIndex GetIndexForFile(string path);
+        Cursor GetCursorAt(ICodeLocation loc);
     }
 
     public class ProjectIndex : IProjectIndex, IDisposable
@@ -38,6 +40,14 @@ namespace CppCodeBrowser
         {
             IFileIndex result = null;
             return _pathToIndexMap.TryGetValue(path, out result) ? result : null;
+        }
+
+        public Cursor GetCursorAt(ICodeLocation loc)
+        {
+            IFileIndex fileIndex = GetIndexForFile(loc.Path);
+            if (fileIndex == null)
+                return null;
+            return fileIndex.GetCursor(loc);
         }
 
         public void AddFile(string path, LibClang.TranslationUnit tu)

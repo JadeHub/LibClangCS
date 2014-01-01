@@ -12,7 +12,7 @@ namespace LibClang
         File.CreateFileDel CreateFile { get; }
         SourceLocation.CreateSourceLocationDel CreateSourceLocation { get; }
         SourceRange.CreateSourceRangeDel CreateSourceRange { get; }
-        Type.CreateTypeDel CreateType { get; }        
+        Type.CreateTypeDel CreateType { get; }
     }
 
     internal interface ITranslationUnitItemStore : ITranslationUnitItemFactory

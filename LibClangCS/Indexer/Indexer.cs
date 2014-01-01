@@ -110,7 +110,7 @@ namespace LibClang.Indexer
             Library.SourceLocation* incStackPtr = inclusionStack;
             for (uint i = 0; i < includeStackSize; i++)
             {
-                //locs[i] = new SourceLocation(*incStackPtr);
+               // locs[i] = new SourceLocation(*incStackPtr);
                 incStackPtr++;
             }
             string path = Library.clang_getFileName(fileHandle).ManagedString;
