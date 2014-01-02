@@ -10,13 +10,13 @@ namespace LibClang
     /// Property comments taken from libclang.h.
     /// see http://clang.llvm.org/doxygen/Index_8h.html for more details.
     /// </summary>
-    public class Cursor
+    public sealed class Cursor
     {
         internal delegate Cursor CreateCursorDel(Library.Cursor handle);
 
         #region Data
         
-        private ITranslationUnitItemFactory _itemFactory;
+        private readonly ITranslationUnitItemFactory _itemFactory;
         private SourceLocation _location;
         private SourceRange _extent;
         private string _spelling;
@@ -27,16 +27,11 @@ namespace LibClang
 
         #region Construction
 
-        internal Cursor(Library.Cursor handle) 
-        {
-            Debug.Assert(!handle.IsNull);
-            Handle = handle;
-            Kind = Library.clang_getCursorKind(Handle);
-            Library.CXType typeHandle = Library.clang_getCursorType(Handle);
-            if(typeHandle.IsValid)
-                _type = _itemFactory.CreateType(typeHandle);
-        }
-
+        /// <summary>
+        /// Create a new Cursor object.
+        /// </summary>
+        /// <param name="handle">Handle to a non null cursor obect.</param>
+        /// <param name="itemFactory">TranslationUnit's item factory / item cache.</param>
         internal Cursor(Library.Cursor handle, ITranslationUnitItemFactory itemFactory)
         {
             Debug.Assert(!handle.IsNull);
@@ -77,7 +72,7 @@ namespace LibClang
         }
         
         /// <summary>
-        /// Kind of cursor.
+        /// Return the Kind of this Cursor.
         /// </summary>
         public CursorKind Kind
         {
@@ -294,19 +289,4 @@ namespace LibClang
 
         #endregion
     }
-
-    #region Test Factory
-
-    /// <summary>
-    /// Factory used to build Cursor objcets in unit tests.
-    /// </summary>
-   /* public class CursorTestFactory
-    {
-        public static Cursor Make(LibraryTypes.Cursor handle)
-        {
-            return new Cursor(handle);
-        }
-    }*/
-        
-    #endregion
 }

@@ -1,9 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace LibClang
 {
-    public class Diagnostic : IDisposable
+    /// <summary>
+    /// An immutable wrapper around libclang's Diagnostic type.
+    /// A Diagnostic represents a diagnostic message generated during parsing.
+    /// 
+    /// </summary>
+    public sealed class Diagnostic : IDisposable
     {
         #region Enums
 
@@ -99,7 +103,7 @@ namespace LibClang
 
         #region Data
 
-        private ITranslationUnitItemFactory _itemFactory;
+        private readonly ITranslationUnitItemFactory _itemFactory;
 
         internal IntPtr Handle { get; private set; }
 
@@ -113,6 +117,11 @@ namespace LibClang
 
         #region Lifetime
 
+        /// <summary>
+        /// Create a new Diagnostic object.
+        /// </summary>
+        /// <param name="handle">Handle to a diagnostic object.</param>
+        /// <param name="itemFactory">TranslationUnit's item factory / item cache.</param>
         internal Diagnostic(IntPtr handle, ITranslationUnitItemFactory itemFactory)
         {
             _itemFactory = itemFactory;
@@ -133,11 +142,11 @@ namespace LibClang
 
         #region Public Methods
 
-        public string Format()
-        {
-            return Library.clang_formatDiagnostic(Handle, Library.clang_defaultDiagnosticDisplayOptions()).ManagedString;
-        }
-
+        /// <summary>
+        /// Format the diagnostic using the suplied display options.
+        /// </summary>
+        /// <param name="formatOptions">Combination of CXDiagnosticDisplayOptions values</param>
+        /// <returns>Formatted diagnostic.</returns>
         public string Format(uint formatOptions)
         {
             return Library.clang_formatDiagnostic(Handle, formatOptions).ManagedString;
@@ -147,30 +156,38 @@ namespace LibClang
 
         #region Properties
 
+        /// <summary>
+        /// Format the diagnostic using Clang's default display options.
+        /// </summary>
         public string DefaultFormat
         {
-            get { return Format(); }
+            get { return Library.clang_formatDiagnostic(Handle, Library.clang_defaultDiagnosticDisplayOptions()).ManagedString; }
         }
 
+        /// <summary>
+        /// Return the Severity of this Diagnostic.
+        /// </summary>
         public Severity DiagnosticSeverity
         {
             get { return Library.clang_getDiagnosticSeverity(Handle); }
         }
 
+        /// <summary>
+        /// Return the Spelling of this Diagnostic.
+        /// </summary>
         public string Spelling
         {
             get { return _spelling ?? (_spelling = Library.clang_getDiagnosticSpelling(Handle).ManagedString);}
         }
 
+        /// <summary>
+        /// Return the Location of this Diagnostic.
+        /// </summary>
         public SourceLocation Location
         {
             get { return _location ?? (_location = _itemFactory.CreateSourceLocation(Library.clang_getDiagnosticLocation(Handle))); }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns>Tuple of enable, disable strings</returns>
         private unsafe Tuple<string, string> LoadOption()
         {
             Library.ClangString enable, disable;
@@ -178,26 +195,41 @@ namespace LibClang
             return new Tuple<string, string>(enable.ManagedString, disable.ManagedString);
         }
 
+        /// <summary>
+        /// Return a Tuple containing the compiler options used to enable and disable this Diagnostic.
+        /// </summary>
         public Tuple<string, string> Option
         {
             get { return _option ?? (_option = LoadOption()); }
         }
 
+        /// <summary>
+        /// Return the Category of this Diagnostic.
+        /// </summary>
         public uint Category
         {
             get { return Library.clang_getDiagnosticCategory(Handle); }
         }
 
+        /// <summary>
+        /// Return the CategoryName of this Diagnostic.
+        /// </summary>
         public string CategoryName
         {
             get { return Library.clang_getDiagnosticCategoryName(Category).ManagedString; }
         }
 
+        /// <summary>
+        /// Return the CategoryText of this Diagnostic.
+        /// </summary>
         public string CategoryText
         {
             get { return Library.clang_getDiagnosticCategoryText(Handle).ManagedString; }
         }
 
+        /// <summary>
+        /// Return the SourceRangles associated with this Diagnostic.
+        /// </summary>
         public SourceRange[] Ranges
         {
             get
@@ -233,6 +265,9 @@ namespace LibClang
             }
         }
 
+        /// <summary>
+        /// Return an array of Tuples containing text and location for each fix-it.
+        /// </summary>
         public Tuple<string, SourceRange>[] FixIts
         {
             get

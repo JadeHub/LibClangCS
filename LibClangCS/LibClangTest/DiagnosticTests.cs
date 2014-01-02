@@ -14,9 +14,9 @@ namespace LibClangTest
         {
             using (TranslationUnit tu = TestCode.TranslationUnits.ErrorWarningClassCpp)
             {
-                Diagnostic error = tu.Diagnostics.Diagnostics.Where(item => item.DiagnosticSeverity == Diagnostic.Severity.Error).First();
-                Diagnostic error2 = tu.Diagnostics.Diagnostics.Where(item => item.DiagnosticSeverity == Diagnostic.Severity.Error).First();
-                Diagnostic warn = tu.Diagnostics.Diagnostics.Where(item => item.DiagnosticSeverity == Diagnostic.Severity.Warning).First();
+                Diagnostic error = tu.Diagnostics.Where(item => item.DiagnosticSeverity == Diagnostic.Severity.Error).First();
+                Diagnostic error2 = tu.Diagnostics.Where(item => item.DiagnosticSeverity == Diagnostic.Severity.Error).First();
+                Diagnostic warn = tu.Diagnostics.Where(item => item.DiagnosticSeverity == Diagnostic.Severity.Warning).First();
 
                 Assert.IsNotNull(error);
                 Assert.IsNotNull(error2);
@@ -30,8 +30,8 @@ namespace LibClangTest
         {
             using (TranslationUnit tu = TestCode.TranslationUnits.ErrorWarningClassCpp)
             {
-                Diagnostic error = tu.Diagnostics.Diagnostics.Where(item => item.DiagnosticSeverity == Diagnostic.Severity.Error).First();
-                Diagnostic warn = tu.Diagnostics.Diagnostics.Where(item => item.DiagnosticSeverity == Diagnostic.Severity.Warning).First();
+                Diagnostic error = tu.Diagnostics.Where(item => item.DiagnosticSeverity == Diagnostic.Severity.Error).First();
+                Diagnostic warn = tu.Diagnostics.Where(item => item.DiagnosticSeverity == Diagnostic.Severity.Warning).First();
 
                 Assert.IsNotNull(error);
                 Assert.IsNotNull(warn);

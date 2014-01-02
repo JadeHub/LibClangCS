@@ -266,9 +266,16 @@ namespace LibClang
             get { return Handle != IntPtr.Zero; }
         }
 
-        public DiagnosticSet Diagnostics
+        public IEnumerable<Diagnostic> Diagnostics
         {
-            get { return _diagSet ?? (_diagSet = new DiagnosticSet(Library.clang_getDiagnosticSetFromTU(Handle), _itemStore));}
+            get
+            {
+                if (_diagSet == null)
+                {
+                    _diagSet = new DiagnosticSet(Library.clang_getDiagnosticSetFromTU(Handle), _itemStore);
+                }
+                return _diagSet.Diagnostics;
+            }
         }
 
         internal IntPtr Handle

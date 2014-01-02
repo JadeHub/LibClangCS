@@ -14,7 +14,7 @@ namespace LibClangTest
         {
             using (TranslationUnit tu = TestCode.TranslationUnits.ErrorWarningClassCpp)
             {
-                DiagnosticSet diags = tu.Diagnostics;
+                
                 
             }
         }

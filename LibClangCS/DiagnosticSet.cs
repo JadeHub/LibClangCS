@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LibClang
 {
-    public class DiagnosticSet : IDisposable
+    internal class DiagnosticSet : IDisposable
     {
         #region Data
 
