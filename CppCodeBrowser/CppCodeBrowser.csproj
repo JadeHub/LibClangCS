@@ -39,10 +39,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Browsing\JumpToBrowser.cs" />
     <Compile Include="CodeLocation.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="FileIndex.cs" />
-    <Compile Include="ICodeBrowser.cs" />
+    <Compile Include="Browsing\ICodeBrowser.cs" />
     <Compile Include="IndexBuilder.cs" />
     <Compile Include="ProjectIndex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -53,9 +54,7 @@
       <Name>LibClangCS</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

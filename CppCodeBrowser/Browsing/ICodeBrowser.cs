@@ -1,13 +1,13 @@
-﻿using LibClang;
+﻿using System.Collections.Generic;
+using LibClang;
 
 namespace CppCodeBrowser
 {
     public interface ICodeBrowser
     {
-        ICodeLocation[] GetReferencesToItemAt(ICodeLocation location);
-        ICodeLocation JumpTo(ICodeLocation location);
+        IEnumerable<ICodeLocation> BrowseFrom(ICodeLocation location);
     }
-
+    /*
     public class CodeBrowser : ICodeBrowser
     {
         public IProjectIndex Index
@@ -76,5 +76,5 @@ namespace CppCodeBrowser
             });
             return result;
         }
-    }
+    }*/
 }

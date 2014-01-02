@@ -12,6 +12,37 @@ namespace LibClang
     /// </summary>
     public class TranslationUnit : IDisposable
     {
+        public struct HeaderInfo
+        {
+            public HeaderInfo(string path, IEnumerable<SourceLocation> stack)
+            {
+                Path = path;
+                InclusionStack = stack;
+            }
+
+            public readonly string Path;
+            public readonly IEnumerable<SourceLocation> InclusionStack;
+
+            public override string ToString()
+            {
+                return Path;
+            }
+
+            public override int GetHashCode()
+            {
+                return Path.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj != null)
+                {
+                    return ((HeaderInfo)obj).Path.Equals(Path);
+                }
+                return false;
+            }
+        }
+
         #region Data
 
         private string _filename;
@@ -22,7 +53,7 @@ namespace LibClang
 
         private ITranslationUnitItemStore _itemStore;
 
-        private HashSet<string> _headerFiles;
+        private HashSet<HeaderInfo> _headerFiles;
                 
         #endregion        
 
@@ -33,7 +64,7 @@ namespace LibClang
             _index = idx;
             _filename = filename;
             _itemStore = itemStore;
-            _headerFiles = new HashSet<string>();
+            _headerFiles = new HashSet<HeaderInfo>();
         }
 
         public TranslationUnit(Index idx, string filename)
@@ -41,7 +72,7 @@ namespace LibClang
             _index = idx;
             _filename = filename;
             _itemStore = new TranslationUnitItemStore();
-            _headerFiles = new HashSet<string>();
+            _headerFiles = new HashSet<HeaderInfo>();
         }
 
         public void Dispose()
@@ -178,24 +209,26 @@ namespace LibClang
 
         private unsafe void LoadHeaderFiles()
         {
-            _headerFiles = new HashSet<string>();
-
             Library.CXInclusionVisitor callBack =
                 delegate(IntPtr fileHandle, Library.SourceLocation* inclusionStack, uint includeStackSize, IntPtr clientData)
                 {
                     if (includeStackSize > 0)
                     {
-                        SourceLocation loc = new SourceLocation(inclusionStack[0], _itemStore);
-                        Cursor c = GetCursorAt(loc);
-                        string path = Library.clang_getFileName(fileHandle).ManagedString;
-                        _headerFiles.Add(path);
+                        List<SourceLocation> locationStack = new List<SourceLocation>();
+
+                        for (uint i = 0; i < includeStackSize; i++)
+                        {
+                            locationStack.Add(_itemStore.CreateSourceLocation(inclusionStack[i]));
+                        }
+                        HeaderInfo header = new HeaderInfo(Library.clang_getFileName(fileHandle).ManagedString, locationStack);
+                        _headerFiles.Add(header);
                     }
                 };
 
             Library.clang_getInclusions(Handle, callBack, IntPtr.Zero);
         }
 
-        public IEnumerable<string> HeaderFiles
+        public IEnumerable<HeaderInfo> HeaderFiles
         {
             get
             {

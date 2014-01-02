@@ -209,7 +209,7 @@ namespace LibClangTest
             using (TranslationUnit tu = TestCode.TranslationUnits.HeaderTestsCpp)
             {
                // Diagnostic d = tu.Diagnostics.Diagnostics.First();
-                List<string> headers = new List<string>();
+                List<TranslationUnit.HeaderInfo> headers = new List<TranslationUnit.HeaderInfo>();
                 headers.AddRange(tu.HeaderFiles);
             }
         }
