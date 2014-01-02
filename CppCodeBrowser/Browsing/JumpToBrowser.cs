@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using LibClang;
+﻿using LibClang;
+using System.Collections.Generic;
 
 namespace CppCodeBrowser
 {
@@ -24,7 +24,7 @@ namespace CppCodeBrowser
 
         public IEnumerable<ICodeLocation> BrowseFrom(ICodeLocation loc)
         {
-            IList<ICodeLocation> results = new List<ICodeLocation>();
+            HashSet<ICodeLocation> results = new HashSet<ICodeLocation>();
             if (_index.IsSourceFile(loc.Path))
             {
                 ISourceFileIndex fileIndex = _index.GetIndexForSourceFile(loc.Path);

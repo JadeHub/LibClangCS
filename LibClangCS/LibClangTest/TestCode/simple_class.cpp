@@ -25,4 +25,3 @@ void SimpleClass::Method(int param)
 }
 
 }
-

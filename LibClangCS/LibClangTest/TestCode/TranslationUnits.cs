@@ -58,7 +58,7 @@ namespace LibClangTest.TestCode
 
         //}
         // ^
-        public static int NamespaceEnd = 318;
+        public static int NamespaceEnd = 338;
 
         //void SimpleClass::Method(int param)
         //                  ^

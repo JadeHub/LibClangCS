@@ -1,5 +1,4 @@
-﻿using LibClang;
-
+﻿
 namespace CppCodeBrowser
 {
     public interface ICodeLocation

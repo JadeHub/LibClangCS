@@ -14,9 +14,9 @@ namespace LibClangTest
             {
                 Cursor ns1 = tu.GetCursorAt(TestCode.SimpleClassCppFile.Path, TestCode.SimpleClassCppFile.NamespaceDefinition);
                 Cursor ns2 = tu.GetCursorAt(TestCode.SimpleClassCppFile.Path, TestCode.SimpleClassCppFile.NamespaceDefinition);
-                Cursor nsEnd = tu.GetCursorAt(TestCode.SimpleClassCppFile.Path, TestCode.SimpleClassCppFile.NamespaceEnd);
+                Cursor md = tu.GetCursorAt(TestCode.SimpleClassCppFile.Path, TestCode.SimpleClassCppFile.MethodDefinition);
 
-                EqualityTester<Cursor>.Test(ns1, ns2, nsEnd);
+                EqualityTester<Cursor>.Test(ns1, ns2, md);
             }
         }
 

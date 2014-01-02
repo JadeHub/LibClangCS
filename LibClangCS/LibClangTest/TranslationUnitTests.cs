@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace LibClangTest
 {
@@ -211,6 +210,15 @@ namespace LibClangTest
                // Diagnostic d = tu.Diagnostics.Diagnostics.First();
                 List<TranslationUnit.HeaderInfo> headers = new List<TranslationUnit.HeaderInfo>();
                 headers.AddRange(tu.HeaderFiles);
+            }
+        }
+
+        [TestMethod]
+        public void Test123()
+        {
+            using (TranslationUnit tu = TestCode.TranslationUnits.SimpleClassCpp)
+            {
+                Cursor c = tu.GetCursorAt(TestCode.SimpleClassCppFile.Path, 327);
             }
         }
     }
