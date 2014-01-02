@@ -23,6 +23,14 @@ namespace LibClangTest.TestCode
             }
         }
 
+        public static TranslationUnit HeaderTestsCpp
+        {
+            get
+            {
+                return CreateTranslationUnit(HeaderTestsCppFile.Path);
+            }
+        }
+
         static TranslationUnit CreateTranslationUnit(string path)
         {
             TranslationUnit tu = new TranslationUnit(Index, path);
@@ -77,5 +85,10 @@ namespace LibClangTest.TestCode
     public static class ErrorWarningCppFile
     {
         public static string Path = "TestCode\\error_warning_class.cpp";
+    }
+
+    public static class HeaderTestsCppFile
+    {
+        public static string Path = "TestCode\\header_tests.cpp";
     }
 }

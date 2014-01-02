@@ -217,6 +217,9 @@ namespace LibClang
         [DllImport("libclang", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void clang_disposeIndex(IntPtr index);
 
+        [DllImport("libclang", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern uint clang_defaultEditingTranslationUnitOptions();
+
         [DllImport("libclang", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         internal static extern IntPtr clang_parseTranslationUnit(IntPtr index, string sourceFilename,
             string[] clangCommandLineArgs, int numClangCommandLineArgs, UnsavedFile[] unsavedFiles, uint numUnsavedFiles, int options);

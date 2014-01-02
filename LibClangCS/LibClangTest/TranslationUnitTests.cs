@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LibClangTest
 {
@@ -199,6 +200,17 @@ namespace LibClangTest
                 FindReferencesAccumulator accumulator = new FindReferencesAccumulator(cs);
                 Assert.IsTrue(tu.FindReferencesTo(cur, cpp, accumulator.Accumulate));
                 Assert.AreEqual(cs.Count, 1);
+            }
+        }
+
+        [TestMethod]
+        public void Headers()
+        {
+            using (TranslationUnit tu = TestCode.TranslationUnits.HeaderTestsCpp)
+            {
+               // Diagnostic d = tu.Diagnostics.Diagnostics.First();
+                List<string> headers = new List<string>();
+                headers.AddRange(tu.HeaderFiles);
             }
         }
     }

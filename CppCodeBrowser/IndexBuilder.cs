@@ -41,6 +41,11 @@ namespace CppCodeBrowser
                 return;
             }
             _index.AddFile(path, tu);
+
+            foreach (string header in tu.HeaderFiles)
+            {
+
+            }
         }
 
         public IProjectIndex Index { get { return _index; } }

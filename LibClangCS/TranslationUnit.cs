@@ -41,6 +41,7 @@ namespace LibClang
             _index = idx;
             _filename = filename;
             _itemStore = new TranslationUnitItemStore();
+            _headerFiles = new HashSet<string>();
         }
 
         public void Dispose()
@@ -85,9 +86,11 @@ namespace LibClang
             if (Valid)
                 return Reparse();
 
-            Handle = Library.clang_parseTranslationUnit(_index.Handle, Filename, 
-                                                    cmdLineParams, cmdLineParams != null ? cmdLineParams.Length : 0, 
-                                                    null, 0, (int)TranslationUnitFlags.PrecompiledPreamble);
+            Handle = Library.clang_parseTranslationUnit(_index.Handle, Filename,
+                                                    cmdLineParams, cmdLineParams != null ? cmdLineParams.Length : 0,
+                                                    null, 0,
+                                                    (int)Library.clang_defaultEditingTranslationUnitOptions() |
+                                                    (int)TranslationUnitFlags.DetailedPreprocessingRecord);
             if (!Valid)
             {
                 ResetState();
@@ -180,8 +183,13 @@ namespace LibClang
             Library.CXInclusionVisitor callBack =
                 delegate(IntPtr fileHandle, Library.SourceLocation* inclusionStack, uint includeStackSize, IntPtr clientData)
                 {
-                    if(includeStackSize > 0)
-                        _headerFiles.Add(Library.clang_getFileName(fileHandle).ManagedString);
+                    if (includeStackSize > 0)
+                    {
+                        SourceLocation loc = new SourceLocation(inclusionStack[0], _itemStore);
+                        Cursor c = GetCursorAt(loc);
+                        string path = Library.clang_getFileName(fileHandle).ManagedString;
+                        _headerFiles.Add(path);
+                    }
                 };
 
             Library.clang_getInclusions(Handle, callBack, IntPtr.Zero);
@@ -191,7 +199,7 @@ namespace LibClang
         {
             get
             {
-                if (_headerFiles == null)
+                if (_headerFiles.Count == 0)
                     LoadHeaderFiles();
                 return _headerFiles;
             }
