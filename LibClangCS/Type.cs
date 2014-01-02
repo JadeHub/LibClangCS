@@ -6,7 +6,7 @@ namespace LibClang
     /// An (incomplete) immutable wrapper around libclang's CXType type.
     /// Represents a the type of an element in the abstract syntax tree.
     /// </summary>
-    public class Type
+    public sealed class Type
     {
         #region Data
 

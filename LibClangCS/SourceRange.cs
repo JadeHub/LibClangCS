@@ -7,7 +7,7 @@ namespace LibClang
     /// An immutable wrapper around libclang's SourceRange type.
     /// A SourceRange represents a start and end position within a code file.
     /// </summary>
-    public class SourceRange
+    public sealed class SourceRange
     {       
         #region Constructor
 

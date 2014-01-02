@@ -96,7 +96,7 @@ namespace LibClang
         IncludeBriefCommentsInCodeCompletion = 0x80
     };
 
-    public class Index : IDisposable
+    public sealed class Index : IDisposable
     {
         public readonly IntPtr Handle;
 

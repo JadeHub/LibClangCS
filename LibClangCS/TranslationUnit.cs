@@ -10,7 +10,7 @@ namespace LibClang
     /// Each call to Parse() can change the Valid state.
     /// If Parse() is called when Valid is true a Reparse() is attempted.
     /// </summary>
-    public class TranslationUnit : IDisposable
+    public sealed class TranslationUnit : IDisposable
     {
         public struct HeaderInfo
         {

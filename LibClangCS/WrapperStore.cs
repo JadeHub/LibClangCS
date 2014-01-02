@@ -3,6 +3,12 @@ using System.Collections.Generic;
 
 namespace LibClang
 {
+    /// <summary>
+    /// A Collection of WrapperType objects keyed by HandleType. Used by TranslationUnit to cache objects of 
+    /// type Cursor, SourceLocation etc.
+    /// </summary>
+    /// <typeparam name="HandleType"></typeparam>
+    /// <typeparam name="WrapperType"></typeparam>
     public interface IWrapperObjectStore <HandleType, WrapperType> where WrapperType : class
     {
         bool Contains(HandleType handle);
@@ -10,6 +16,11 @@ namespace LibClang
         void Clear();
     }
 
+    /// <summary>
+    /// Abstract base type for collection of WrapperType objects. Creation of WrapperType objects from HandleTYpe is defered to derived classes.
+    /// </summary>
+    /// <typeparam name="HandleType"></typeparam>
+    /// <typeparam name="WrapperType"></typeparam>
     public abstract class WrapperObjectStore<HandleType, WrapperType> : IWrapperObjectStore<HandleType, WrapperType> where WrapperType : class
     {
         private Dictionary<HandleType, WrapperType> _items;
@@ -44,6 +55,9 @@ namespace LibClang
         protected abstract WrapperType Create(HandleType h);
     }
 
+    /// <summary>
+    /// Cache of Cursor objects.
+    /// </summary>
     internal class CursorStore : WrapperObjectStore<Library.Cursor, Cursor> 
     {
         private ITranslationUnitItemFactory _itemFactory;
@@ -61,6 +75,9 @@ namespace LibClang
         }
     }
 
+    /// <summary>
+    /// Cache of File objects.
+    /// </summary>
     internal class FileStore : WrapperObjectStore<IntPtr, File> 
     {
         public FileStore() {}
@@ -73,6 +90,9 @@ namespace LibClang
         }
     }
 
+    /// <summary>
+    /// Cache of SourceLocation objects.
+    /// </summary>
     internal class SourceLocationStore : WrapperObjectStore<Library.SourceLocation, SourceLocation>
     {
         private ITranslationUnitItemFactory _itemFactory;
@@ -90,6 +110,9 @@ namespace LibClang
         }
     }
 
+    /// <summary>
+    /// Cache of SourceRange objects.
+    /// </summary>
     internal class SourceRangeStore : WrapperObjectStore<Library.SourceRange, SourceRange>
     {
         private ITranslationUnitItemFactory _itemFactory;
@@ -107,6 +130,9 @@ namespace LibClang
         }
     }
 
+    /// <summary>
+    /// Cache of Type objects.
+    /// </summary>
     internal class TypeStore : WrapperObjectStore<Library.CXType, Type>
     {
         private ITranslationUnitItemFactory _itemFactory;
@@ -124,6 +150,9 @@ namespace LibClang
         }
     }
 
+    /// <summary>
+    /// Cache of Diagnostic objects.
+    /// </summary>
     internal class DiagnosticStore : WrapperObjectStore<IntPtr, Diagnostic>
     {
         private ITranslationUnitItemFactory _itemFactory;

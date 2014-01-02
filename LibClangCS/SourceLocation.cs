@@ -7,7 +7,7 @@ namespace LibClang
     /// An immutable wrapper around libclang's SourceLocation type.
     /// A SourceLocation represents a position within a File.
     /// </summary>
-    public class SourceLocation : IComparable
+    public sealed class SourceLocation : IComparable
     {
         internal delegate SourceLocation CreateSourceLocationDel(Library.SourceLocation handle);
 

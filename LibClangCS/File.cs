@@ -7,7 +7,7 @@ namespace LibClang
     /// An immutable wrapper around libclang's File type.
     /// A File represents a single code file (source or header) in a Translation Unit
     /// </summary>
-    public class File
+    public sealed class File
     {
         internal delegate File CreateFileDel(IntPtr handle);
 
