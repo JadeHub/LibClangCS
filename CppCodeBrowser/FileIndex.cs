@@ -7,13 +7,19 @@ using LibClang;
 
 namespace CppCodeBrowser
 {
+    internal interface IProjectFile
+    {
+        IEnumerable<Diagnostic> Diagnostics { get; }
+    }
+
     /// <summary>
     /// Index of a source file.
     /// </summary>
     public interface ISourceFileIndex : IDisposable
     {
         LibClang.Cursor GetCursorAt(ICodeLocation location);
-        bool IncludesHeader(string path);
+        IEnumerable<Diagnostic> Diagnostics { get; }
+        TokenSet GetTokens(SourceRange range);
     }
 
     public class SourceFileIndex : ISourceFileIndex, IDisposable
@@ -36,18 +42,21 @@ namespace CppCodeBrowser
 
         public LibClang.Cursor GetCursorAt(ICodeLocation location)
         {
-            return _tu.GetCursorAt(location.Path, location.Offset);
+            LibClang.Cursor c = _tu.GetCursorAt(location.Path, location.Offset);
+            if (c.Kind == CursorKind.NoDeclFound)
+                return null;
+            return c;
         }
 
-        public bool IncludesHeader(string path)
+        public IEnumerable<Diagnostic> Diagnostics 
         {
-            string fullPath = System.IO.Path.GetFullPath(path);
-            foreach (TranslationUnit.HeaderInfo header in _tu.HeaderFiles)
-            {
-                if (System.IO.Path.GetFullPath(header.Path) == fullPath)
-                    return true;
-            }
-            return false;
+            get { return _tu.Diagnostics; }
+        }
+
+        public TokenSet GetTokens(SourceRange range)
+        {
+            TokenSet set = TokenSet.Create(_tu, range);
+            return set;
         }
     }
 }

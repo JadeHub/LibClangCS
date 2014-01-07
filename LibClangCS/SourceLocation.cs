@@ -11,7 +11,11 @@ namespace LibClang
     {
         internal delegate SourceLocation CreateSourceLocationDel(Library.SourceLocation handle);
 
+        static int count = 0;
+
         #region Data
+
+        private int _id;
 
         private ITranslationUnitItemFactory _itemFactory;
 
@@ -38,7 +42,10 @@ namespace LibClang
             Line = (int)line;
             Column = (int)column;
             Offset = (int)offset;
-            File = _itemFactory.CreateFile(file);            
+            if (file != IntPtr.Zero)
+            {
+                File = _itemFactory.CreateFile(file);    
+            }            
         }
         
         #endregion

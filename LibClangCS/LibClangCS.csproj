@@ -57,6 +57,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SourceLocation.cs" />
     <Compile Include="SourceRange.cs" />
+    <Compile Include="Token.cs" />
+    <Compile Include="TokenKind.cs" />
+    <Compile Include="TokenSet.cs" />
     <Compile Include="TranslationUnit.cs" />
     <Compile Include="TranslationUnitItemStore.cs" />
     <Compile Include="Type.cs" />

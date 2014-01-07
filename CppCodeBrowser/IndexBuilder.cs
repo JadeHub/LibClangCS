@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CppCodeBrowser
 {
@@ -28,7 +24,7 @@ namespace CppCodeBrowser
 
         public void Dispose()
         {
-            _index.Dispose();
+            //dispose translation units
         }
 
         public void IndexFile(string path, string[] compilerArgs)
@@ -40,7 +36,7 @@ namespace CppCodeBrowser
                 tu.Dispose();
                 return;
             }
-            _index.AddFile(path, tu);
+            _index.AddSourceFile(path, tu);
         }
 
         public IProjectIndex Index { get { return _index; } }

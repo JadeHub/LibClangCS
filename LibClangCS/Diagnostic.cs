@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace LibClang
 {
@@ -110,7 +111,7 @@ namespace LibClang
         private string _spelling;
         private SourceLocation _location;
         private Tuple<string, string> _option;
-        private SourceRange[] _ranges;
+        private readonly IList<SourceRange> _ranges;
         private Tuple<string, SourceRange>[] _fixIts;
 
         #endregion
@@ -126,6 +127,7 @@ namespace LibClang
         {
             _itemFactory = itemFactory;
             Handle = handle;
+            _ranges = new List<SourceRange>();
         }
 
         public void Dispose()
@@ -230,23 +232,15 @@ namespace LibClang
         /// <summary>
         /// Return the SourceRangles associated with this Diagnostic.
         /// </summary>
-        public SourceRange[] Ranges
+        public IEnumerable<SourceRange> Ranges
         {
             get
             {
-                if (_ranges == null)
+                uint count = Library.clang_getDiagnosticNumRanges(Handle);
+                for (uint i = 0; i < count; i++)
                 {
-                    uint count = Library.clang_getDiagnosticNumRanges(Handle);
-                    if (count > 0)
-                    {
-                        _ranges = new SourceRange[count];
-                        for (uint i = 0; i < count; i++)
-                        {
-                            _ranges[i] = _itemFactory.CreateSourceRange(Library.clang_getDiagnosticRange(Handle, i));
-                        }
-                    }
+                    yield return _itemFactory.CreateSourceRange(Library.clang_getDiagnosticRange(Handle, i));
                 }
-                return _ranges;
             }
         }
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace LibClang
 {
@@ -31,7 +30,18 @@ namespace LibClang
         public SourceLocation Start { get; private set; }
         public SourceLocation End { get; private set; }
         public bool Null { get { return Handle == Library.SourceRange.NullRange; } }
+        public int Length { get { return End.Offset - Start.Offset; } }
 
         #endregion
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1}->{2}", Start.File.Name, Start.Offset, End.Offset);
+        }
+
+        public bool Contains(int offset)
+        {
+            return offset >= Start.Offset && offset <= End.Offset;
+        }
     }
 }

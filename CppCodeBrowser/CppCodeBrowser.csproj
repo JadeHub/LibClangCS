@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Browsing\JumpToBrowser.cs" />
     <Compile Include="CodeLocation.cs" />
+    <Compile Include="IProjectItem.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="FileIndex.cs" />
     <Compile Include="Browsing\ICodeBrowser.cs" />
@@ -49,6 +50,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\JadeUtils\JadeUtils\JadeUtils.csproj">
+      <Project>{52652847-ed88-486a-a51d-ce4a15f16c1f}</Project>
+      <Name>JadeUtils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LibClangCS\LibClangCS.csproj">
       <Project>{d68fab6f-29e2-4159-b398-70559930aeb8}</Project>
       <Name>LibClangCS</Name>

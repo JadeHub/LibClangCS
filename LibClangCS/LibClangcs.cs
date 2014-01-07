@@ -158,6 +158,46 @@ namespace LibClang
         }
 
         [StructLayout(LayoutKind.Sequential)]
+        internal struct Token
+        {
+
+            readonly uint data0;
+            readonly uint data1;
+            readonly uint data2;
+            readonly uint data3;
+
+            readonly IntPtr ptr_data;
+
+            public static bool operator ==(Token left, Token right)
+            {
+                return left.data0 == right.data0 &&
+                    left.data1 == right.data1 &&
+                    left.data2 == right.data2 &&
+                    left.data3 == right.data3 &&
+                    left.ptr_data == right.ptr_data;
+            }
+
+            public static bool operator !=(Token left, Token right)
+            {
+                return !(left == right);
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj != null && obj is Token)
+                {
+                    return (Token)obj == this;
+                }
+                return false;
+            }
+
+            public override int GetHashCode()
+            {
+                return (int)ptr_data.ToInt32();
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
         internal struct SourceRange
         {
             static public SourceRange NullRange;
@@ -357,7 +397,29 @@ namespace LibClang
 
         [DllImport("libclang", CallingConvention = CallingConvention.Cdecl)]
         internal static extern uint clang_hashCursor(Cursor c);
-                        
+
+        #region Tokens
+
+        [DllImport("libclang", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern TokenKind clang_getTokenKind(Token tok);
+
+        [DllImport("libclang", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern ClangString clang_getTokenSpelling(IntPtr tu, Token tok);
+
+        [DllImport("libclang", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern SourceLocation clang_getTokenLocation(IntPtr tu, Token tok);
+
+        [DllImport("libclang", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern SourceRange clang_getTokenExtent(IntPtr tu, Token tok);
+
+        [DllImport("libclang", CallingConvention = CallingConvention.Cdecl)]
+        internal static unsafe extern void clang_tokenize(IntPtr tu, SourceRange Range, Token** Tokens, uint* NumTokens);
+
+        [DllImport("libclang", CallingConvention = CallingConvention.Cdecl)]
+        internal static unsafe extern void clang_disposeTokens(IntPtr tu, Token* Tokens, uint NumTokens);
+
+        #endregion
+
         #region Indexing
 
         [StructLayout(LayoutKind.Sequential)]

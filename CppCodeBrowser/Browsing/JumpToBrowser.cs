@@ -1,5 +1,8 @@
 ﻿using LibClang;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using JadeUtils;
 
 namespace CppCodeBrowser
 {
@@ -22,41 +25,43 @@ namespace CppCodeBrowser
 
         #region ICodeBrowser
 
+        public bool CanBrowseFrom(ICodeLocation loc)
+        {
+            return true;
+        }
+
         public IEnumerable<ICodeLocation> BrowseFrom(ICodeLocation loc)
         {
-            HashSet<ICodeLocation> results = new HashSet<ICodeLocation>();
-            if (_index.IsSourceFile(loc.Path))
+            ArgChecking.NotNull(loc, "loc");
+            
+            IProjectItem item = _index.FindProjectItem(loc.Path);
+            if (item == null)
+                yield break;
+
+            foreach (TranslationUnit tu in item.TranslationUnits)
             {
-                ISourceFileIndex fileIndex = _index.GetIndexForSourceFile(loc.Path);
-                ICodeLocation result = JumpTo(fileIndex, loc);
+                ICodeLocation result = JumpTo(tu, loc);
                 if (result != null)
-                    results.Add(result);
+                    yield return result;
             }
-            else if (_index.IsHeaderFile(loc.Path))
-            {
-                foreach (ISourceFileIndex fileIndex in _index.GetIndexesForHeaderFile(loc.Path))
-                {
-                    ICodeLocation result = JumpTo(fileIndex, loc);
-                    if (result != null)
-                        results.Add(result);
-                }                
-            }
-            return results;
         }
 
         #endregion
 
         #region Private Methods
 
-        private ICodeLocation JumpTo(ISourceFileIndex fileIndex, ICodeLocation loc)
+        private ICodeLocation JumpTo(TranslationUnit tu, ICodeLocation loc)
         {
-            Cursor c = fileIndex.GetCursorAt(loc);
-            return c == null ? null : JumpTo(c);
+            Cursor c = tu.GetCursorAt(loc.Path, loc.Offset);
+            return c == null || c.Kind == CursorKind.NoDeclFound ? null : JumpTo(c);
         }
 
         private ICodeLocation JumpTo(Cursor c)
         {
             LibClang.Cursor result = null;
+
+            if (c.Kind == CursorKind.InclusionDirective)
+                return JumpToInclude(c);
 
             if (JumpToDeclaration(c))
             {
@@ -75,6 +80,13 @@ namespace CppCodeBrowser
             if (result == null)
                 return null;
             return new CodeLocation(result.Location.File.Name, result.Location.Offset);
+        }
+
+        private ICodeLocation JumpToInclude(Cursor c)
+        {
+            Debug.Assert(c.Kind == CursorKind.InclusionDirective);
+
+            return null;
         }
 
         private static bool JumpToDeclaration(LibClang.Cursor c)

@@ -108,7 +108,7 @@ namespace LibClang
 
         public bool Parse(string[] cmdLineParams)
         {
-            ResetState();   
+            ResetState();
             if (!System.IO.File.Exists(Filename))
             {
                 throw new System.IO.FileNotFoundException("Couldn't find input file.", Filename);
@@ -120,7 +120,6 @@ namespace LibClang
             Handle = Library.clang_parseTranslationUnit(_index.Handle, Filename,
                                                     cmdLineParams, cmdLineParams != null ? cmdLineParams.Length : 0,
                                                     null, 0,
-                                                    (int)Library.clang_defaultEditingTranslationUnitOptions() |
                                                     (int)TranslationUnitFlags.DetailedPreprocessingRecord);
             if (!Valid)
             {
@@ -155,6 +154,7 @@ namespace LibClang
             Library.Cursor cur = Library.clang_getCursor(Handle, location.Handle);
             if (cur.IsNull)
                 return null;
+            cur = Library.clang_getCursor(Handle, location.Handle);
             return _itemStore.CreateCursor(cur);
         }
 
@@ -220,6 +220,9 @@ namespace LibClang
                         {
                             locationStack.Add(_itemStore.CreateSourceLocation(inclusionStack[i]));
                         }
+
+                        Cursor includeStatement = GetCursorAt(locationStack[0]);
+
                         HeaderInfo header = new HeaderInfo(Library.clang_getFileName(fileHandle).ManagedString, locationStack);
                         _headerFiles.Add(header);
                     }

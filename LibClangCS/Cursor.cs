@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace LibClang
@@ -20,7 +21,7 @@ namespace LibClang
         private SourceLocation _location;
         private SourceRange _extent;
         private string _spelling;
-        private Type _type;
+        private readonly Type _type;
         private string _usr;
         
         #endregion
@@ -62,7 +63,15 @@ namespace LibClang
         /// </summary>
         public SourceRange Extent
         {
-            get { return _extent ?? (_extent = _itemFactory.CreateSourceRange(Library.clang_getCursorExtent(Handle))); }
+            get { return _extent ?? (_extent = MakeExtent()); }
+        }
+
+        private SourceRange MakeExtent()
+        {
+            Library.SourceRange range = Library.clang_getCursorExtent(Handle);
+            if (range.IsNull)
+                return null;
+            return _itemFactory.CreateSourceRange(Library.clang_getCursorExtent(Handle));
         }
 
         internal Library.Cursor Handle
@@ -244,6 +253,21 @@ namespace LibClang
                 Handle,
                 (cursor, parent, data) => visitor(_itemFactory.CreateCursor(cursor), _itemFactory.CreateCursor(parent)),
                 IntPtr.Zero);
+        }
+
+        public IList<Cursor> Children
+        {
+            get
+            {
+                IList<Cursor> children = new List<Cursor>();
+
+                VisitChildren(delegate(Cursor cursor, Cursor parent)
+                {
+                    children.Add(cursor);
+                    return ChildVisitResult.Continue;
+                });
+                return children;
+            }
         }
 
         #endregion

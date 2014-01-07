@@ -1,98 +1,60 @@
-﻿using System;
-using System.Linq;
+﻿using LibClang;
+using System;
 using System.Collections.Generic;
-using LibClang;
+using System.Linq;
 
 namespace CppCodeBrowser
-{
+{    
     public interface IProjectIndex
     {
-        /// <summary>
-        /// Can be header or source file
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        ISourceFileIndex GetIndexForSourceFile(string path);
-        IEnumerable<ISourceFileIndex> GetIndexesForHeaderFile(string path);
-
-        bool IsSourceFile(string path);
-        bool IsHeaderFile(string path);
+        IProjectItem FindProjectItem(string path);
     }
 
-    public class ProjectIndex : IProjectIndex, IDisposable
+    public class ProjectIndex : IProjectIndex
     {
-        /// <summary>
-        /// Source file path mapped to IFileIndex.
-        /// </summary>
-        private readonly Dictionary<string, ISourceFileIndex> _pathToIndexMap;
-
-        /// <summary>
-        /// Header file path mapped to set of IFileIndexes from which it was included.
-        /// </summary>
-        private readonly Dictionary<string, HashSet<ISourceFileIndex>> _headerToSourceMap;
-     
-
+        private readonly Dictionary<string, IProjectItem> _items;
+                
         public ProjectIndex()
         {
-            _pathToIndexMap = new Dictionary<string, ISourceFileIndex>();
-            _headerToSourceMap = new Dictionary<string, HashSet<ISourceFileIndex>>();
+            _items = new Dictionary<string, IProjectItem>();
         }
 
-        public void Dispose()
+        public IProjectItem FindProjectItem(string path)
         {
-            foreach (ISourceFileIndex fi in _pathToIndexMap.Values)
-            {
-                fi.Dispose();
-            }
-            _pathToIndexMap.Clear();
-        }
-
-        public ISourceFileIndex GetIndexForSourceFile(string path)
-        {
-            ISourceFileIndex result;
-            return _pathToIndexMap.TryGetValue(path, out result) ? result : null;
-        }
-                        
-        public IEnumerable<ISourceFileIndex> GetIndexesForHeaderFile(string path)
-        {            
-            HashSet<ISourceFileIndex> result;
-            return _headerToSourceMap.TryGetValue(System.IO.Path.GetFullPath(path), out result) ? 
-                result : Enumerable.Empty<ISourceFileIndex>();
+            IProjectItem item;
+            return _items.TryGetValue(path, out item) ? item : null;
         }
         
-        public void AddFile(string path, LibClang.TranslationUnit tu)
+        public void AddSourceFile(string path, LibClang.TranslationUnit tu)
         {
-            ISourceFileIndex index = new SourceFileIndex(tu);
-            _pathToIndexMap.Add(path, index);
+            IProjectItem item = new SourceFile(path, tu);
+
+            _items.Add(path, item);
 
             foreach (TranslationUnit.HeaderInfo header in tu.HeaderFiles)
             {
-                RecordHeader(index, header);
+                RecordHeader(header, tu);
             }
         }
 
-        public bool IsHeaderFile(string path)
+        private void RecordHeader(TranslationUnit.HeaderInfo headerInfo, TranslationUnit tu)
         {
-            string fullPath = System.IO.Path.GetFullPath(path);
-            return _headerToSourceMap.ContainsKey(fullPath);
-        }
+            string path = System.IO.Path.GetFullPath(headerInfo.Path);
 
-        public bool IsSourceFile(string path)
-        {
-            return _pathToIndexMap.ContainsKey(path);
-        }
-
-        private void RecordHeader(ISourceFileIndex sourceIndex, TranslationUnit.HeaderInfo header)
-        {
-            string path = System.IO.Path.GetFullPath(header.Path);
-
-            HashSet<ISourceFileIndex> sources;
-            if (_headerToSourceMap.TryGetValue(path, out sources) == false)
+            IProjectItem item;
+            if (_items.TryGetValue(path, out item) == false)
             {
-                sources = new HashSet<ISourceFileIndex>();
-                _headerToSourceMap.Add(path, sources);
+                item = new HeaderFile(path);
+                _items.Add(path, item);
             }
-            sources.Add(sourceIndex);
+
+            if (item.Type != ProjectItemType.HeaderFile || !(item is HeaderFile))
+                throw new ApplicationException(headerInfo.Path + " previously seen as a source file.");
+
+            HeaderFile header = item as HeaderFile;
+            header.AddTranslationUnit(tu);
+            IEnumerable<Diagnostic> ds = header.Diagnostics;
+
         }
     }
 }
